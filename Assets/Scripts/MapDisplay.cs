@@ -6,6 +6,7 @@ public class MapDisplay : MonoBehaviour
 {
     [SerializeField] private SpriteRenderer spriteRenderer;
     [SerializeField] private Material material;
+    [SerializeField] private GameObject terrain;
 
     [Range(0f, 1f)]
     public float[] fillPercents;
@@ -30,6 +31,8 @@ public class MapDisplay : MonoBehaviour
 
         spriteRenderer.sprite = Sprite.Create(noiseTex, new Rect(0, 0, width, height), new Vector2(0.5f, 0.5f));
         material.SetTexture("_HeightMap", noiseTex);
+        terrain.GetComponent<TerrainGenerator>().StartGenerator(width, height, noiseTex);
+
     }
 
     private Color CalcColor(float noiseValue, float gradientValue, bool useColorMap)
