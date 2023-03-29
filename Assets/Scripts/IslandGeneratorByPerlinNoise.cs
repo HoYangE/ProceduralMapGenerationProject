@@ -17,8 +17,6 @@ public class IslandGeneratorByPerlinNoise : MonoBehaviour
 
     public string seed;
     public bool useRandomSeed;
-
-    public bool useColorMap;
     public bool useGradientMap;
 
     [SerializeField] private PerlinNoise perlinNoise;
@@ -48,7 +46,7 @@ public class IslandGeneratorByPerlinNoise : MonoBehaviour
     {
         float[,] noiseMap = perlinNoise.GenerateMap(width, height, scale, octaves, persistance, lacunarity, xOrg, yOrg); //노이즈 맵 생성
         float[,] gradientMap = gradient.GenerateMap(width, height);
-        if (useGradientMap) mapDisplay.DrawNoiseMap(noiseMap, gradientMap, useColorMap);
-        else mapDisplay.DrawNoiseMap(noiseMap, noiseMap, useColorMap);
+        if (useGradientMap) mapDisplay.DrawNoiseMap(noiseMap, gradientMap);
+        else mapDisplay.DrawNoiseMap(noiseMap, noiseMap);
     }
 }

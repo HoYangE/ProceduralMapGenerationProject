@@ -55,7 +55,7 @@ public class TerrainGenerator : MonoBehaviour
                 heightValue /= 255;
 
                 // Set the corresponding height in the terrain data
-                heights[x, y] = heightValue * maxHeight/1.2f;
+                heights[x, y] = heightValue * maxHeight;
             }
         }
 

@@ -163,7 +163,6 @@ MonoBehaviour:
   lacunarity: 2
   seed: 
   useRandomSeed: 1
-  useColorMap: 0
   useGradientMap: 1
   perlinNoise: {fileID: 225865161}
   gradient: {fileID: 225865160}
@@ -183,10 +182,9 @@ MonoBehaviour:
   spriteRenderer: {fileID: 1317040590}
   material: {fileID: 2100000, guid: aa4a4fadfb7c7fa4e870a420a31f3eb0, type: 2}
   terrain: {fileID: 1391510355}
-  fillPercents:
-  - 0.4
-  fillColors:
-  - {r: 0, g: 0, b: 0, a: 0}
+  antiGrayscale: 2.5
+  fillPercents: []
+  fillColors: []
 --- !u!114 &225865160
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -199,8 +197,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eeb8a035b4ddb8940abfb251403c06d8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  radius: 0.35
-  lux: 0.6
+  radius: 0.4
+  lux: 0.7
 --- !u!114 &225865161
 MonoBehaviour:
   m_ObjectHideFlags: 0
