@@ -44,7 +44,7 @@ public class IslandGeneratorByPerlinNoise : MonoBehaviour
 
     private void GenerateMap()
     {
-        float[,] noiseMap = perlinNoise.GenerateMap(width, height, scale, octaves, persistance, lacunarity, xOrg, yOrg); //노이즈 맵 생성
+        float[,] noiseMap = perlinNoise.GenerateMap(width, height, scale, octaves, persistance, lacunarity, -yOrg, -xOrg); //노이즈 맵 생성
         float[,] gradientMap = gradient.GenerateMap(width, height);
         if (useGradientMap) mapDisplay.DrawNoiseMap(noiseMap, gradientMap);
         else mapDisplay.DrawNoiseMap(noiseMap, noiseMap);
