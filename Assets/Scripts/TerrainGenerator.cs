@@ -14,7 +14,7 @@ public class TerrainGenerator : MonoBehaviour
     public void StartGenerator(int width, int height, Texture2D texture2D) 
     {
         heightmapTexture = texture2D;
-        // Create a new terrain object
+        //터레인 데이터 생성
         TerrainData terrainData = new TerrainData();
         if(terrain == null)
             terrain = gameObject.AddComponent<Terrain>();
@@ -52,7 +52,6 @@ public class TerrainGenerator : MonoBehaviour
             }
         }
 
-        // Apply the heights to the terrain data
         terrainData.SetHeights(0, 0, heights);
     }
 }

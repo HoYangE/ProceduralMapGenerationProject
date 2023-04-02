@@ -7,46 +7,46 @@ public class PerlinNoise : MonoBehaviour
     public float[,] GenerateMap(int width, int height, float scale, float octaves, float persistance, float lacunarity, float xOrg, float yOrg)
     {
         float[,] noiseMap = new float[width, height];
-        //³ªÁß¿¡ Å©±â¸¦ ºÎ¸ğ·Î ³ª´°¼ÀÀ» ÇÏ±â À§ÇØ ÃÖ¼Ú°ª ÁöÁ¤
+        //ë‚˜ì¤‘ì— í¬ê¸°ë¥¼ ë¶€ëª¨ë¡œ ë‚˜ëˆ—ì…ˆì„ í•˜ê¸° ìœ„í•´ ìµœì†Ÿê°’ ì§€ì •
         scale = Mathf.Max(0.0001f, scale);
-        //ÃÖ´ñ°ª ¿ë
+        //ìµœëŒ“ê°’ ìš©
         float maxNoiseHeight = float.MinValue;
-        //ÃÖ¼Ú°ª ¿ë
+        //ìµœì†Ÿê°’ ìš©
         float minNoiseHeight = float.MaxValue;
-        //³ëÀÌÁî Á¦ÀÛ¿ë ·çÇÁ
+        //ë…¸ì´ì¦ˆ ì œì‘ìš© ë£¨í”„
         for (int x = 0; x < width; x++)
         {
             for (int y = 0; y < height; y++)
             {
-                //ÁøÆø
+                //ì§„í­
                 float amplitude = 1;
-                //ÁÖÆÄ¼ö
+                //ì£¼íŒŒìˆ˜
                 float frequency = 1;
-                //ÆŞ¸° ³ëÀÌÁî * ÁøÆø °ª
+                //í„ë¦° ë…¸ì´ì¦ˆ * ì§„í­ ê°’
                 float noiseHeight = 0;
 
-                //¿ÁÅ¸ºê Ã³¸®¿ë ·çÇÁ
+                //ì˜¥íƒ€ë¸Œ ì²˜ë¦¬ìš© ë£¨í”„
                 for (int i = 0; i < octaves; i++)
                 {
-                    //xCoord´Â xÃà¿¡¼­ »õ·Î¿î ÁÂÇ¥¸¦ ³ªÅ¸³»¸ç, xOrg´Â ÀÌÀü À§Ä¡¸¦ ³ªÅ¸³»¸ç, 
-                    //x¿Í scale, frequency °ªÀº »õ·Î¿î À§Ä¡¸¦ °è»êÇÏ´Â µ¥ »ç¿ëµÇ´Â ÆÄ¶ó¹ÌÅÍÀÔ´Ï´Ù.
+                    //xCoordëŠ” xì¶•ì—ì„œ ìƒˆë¡œìš´ ì¢Œí‘œë¥¼ ë‚˜íƒ€ë‚´ë©°, xOrgëŠ” ì´ì „ ìœ„ì¹˜ë¥¼ ë‚˜íƒ€ë‚´ë©°, 
+                    //xì™€ scale, frequency ê°’ì€ ìƒˆë¡œìš´ ìœ„ì¹˜ë¥¼ ê³„ì‚°í•˜ëŠ” ë° ì‚¬ìš©ë˜ëŠ” íŒŒë¼ë¯¸í„°ì…ë‹ˆë‹¤.
                     float xCoord = xOrg + x / scale * frequency;
                     float yCoord = yOrg + y / scale * frequency;
-                    //0~1 »çÀÌÀÇ °ªÀ» ¹İÈ¯ÇÏ´Â ÇÔ¼ö·Î 2¸¦ °öÇÏ°í 1À» »©¼­ -1~1 »çÀÌÀÇ °ªÀ¸·Î º¯È¯ÇÕ´Ï´Ù.
+                    //0~1 ì‚¬ì´ì˜ ê°’ì„ ë°˜í™˜í•˜ëŠ” í•¨ìˆ˜ë¡œ 2ë¥¼ ê³±í•˜ê³  1ì„ ë¹¼ì„œ -1~1 ì‚¬ì´ì˜ ê°’ìœ¼ë¡œ ë³€í™˜í•©ë‹ˆë‹¤.
                     float perlinValue = Mathf.PerlinNoise(xCoord, yCoord) * 2 - 1;
-                    //ÁøÆøÀÌ ÆÄµ¿ÀÇ ³ôÀÌ¸¦ ³ªÅ¸³»¹Ç·Î ÆŞ¸°³ëÀÌÁî °ª¿¡ °öÇÏ¿© ÃÖÁ¾ ³ôÀÌ¸¦ ±¸ÇÕ´Ï´Ù.
+                    //ì§„í­ì´ íŒŒë™ì˜ ë†’ì´ë¥¼ ë‚˜íƒ€ë‚´ë¯€ë¡œ í„ë¦°ë…¸ì´ì¦ˆ ê°’ì— ê³±í•˜ì—¬ ìµœì¢… ë†’ì´ë¥¼ êµ¬í•©ë‹ˆë‹¤.
                     noiseHeight += perlinValue * amplitude;
 
-                    //´ÙÀ½ ¿ÁÅ¸ºê·Î ÁøÇàÇÒ ¶§ ÁøÆø°ú ÁÖÆÄ¼öÀÇ º¯È­°ª
-                    //ÁøÆø¿¡ Áö¼Ó¼ºÀ» °öÇÕ´Ï´Ù. Áö¼Ó¼ºÀº 0~1·Î °ü¸®µÇ¹Ç·Î ÁøÆøÀÇ °¨¼Ò
+                    //ë‹¤ìŒ ì˜¥íƒ€ë¸Œë¡œ ì§„í–‰í•  ë•Œ ì§„í­ê³¼ ì£¼íŒŒìˆ˜ì˜ ë³€í™”ê°’
+                    //ì§„í­ì— ì§€ì†ì„±ì„ ê³±í•©ë‹ˆë‹¤. ì§€ì†ì„±ì€ 0~1ë¡œ ê´€ë¦¬ë˜ë¯€ë¡œ ì§„í­ì˜ ê°ì†Œ
                     amplitude *= persistance;
-                    //ÁÖÆÄ¼ö¿¡ °£°áÇÔÀ» °öÇÕ´Ï´Ù. °£°áÇÔÀº ¾ç¼ö·Î °ü¸®µÇ¹Ç·Î ÁÖÆÄ¼ö Áõ°¡
+                    //ì£¼íŒŒìˆ˜ì— ê°„ê²°í•¨ì„ ê³±í•©ë‹ˆë‹¤. ê°„ê²°í•¨ì€ ì–‘ìˆ˜ë¡œ ê´€ë¦¬ë˜ë¯€ë¡œ ì£¼íŒŒìˆ˜ ì¦ê°€
                     frequency *= lacunarity;
                 }
-                //¿¹¿Ü»çÇ× Ã³¸®
+                //ì˜ˆì™¸ì‚¬í•­ ì²˜ë¦¬
                 if (noiseHeight > maxNoiseHeight) maxNoiseHeight = noiseHeight;
                 else if (noiseHeight < minNoiseHeight) minNoiseHeight = noiseHeight;
-                //ÅØ½ºÃÄ¸¦ ¸¸µé±â À§ÇÑ µ¥ÀÌÅÍ ÀÔ·Â ´Ü°è
+                //í…ìŠ¤ì³ë¥¼ ë§Œë“¤ê¸° ìœ„í•œ ë°ì´í„° ì…ë ¥ ë‹¨ê³„
                 noiseMap[x, y] = noiseHeight;
             }
         }
@@ -54,8 +54,8 @@ public class PerlinNoise : MonoBehaviour
         {
             for (int y = 0; y < height; y++)
             {
-                //ÅØ½ºÃÄ¸¦ ¸¸µé±â À§ÇÑ µ¥ÀÌÅÍ °ª Á¤±ÔÈ­ Ã³¸®
-                //lerpÀÇ ¿ªÇÔ¼ö·Î ÃÖ¼Ú°ª°ú ÃÖ´ñ°ªÀÇ »çÀÕ°ªÀ» ³ÖÀ¸¸é 0~1»çÀÌÀÇ °ªÀ» ¹İÈ¯
+                //í…ìŠ¤ì³ë¥¼ ë§Œë“¤ê¸° ìœ„í•œ ë°ì´í„° ê°’ ì •ê·œí™” ì²˜ë¦¬
+                //lerpì˜ ì—­í•¨ìˆ˜ë¡œ ìµœì†Ÿê°’ê³¼ ìµœëŒ“ê°’ì˜ ì‚¬ì‡ê°’ì„ ë„£ìœ¼ë©´ 0~1ì‚¬ì´ì˜ ê°’ì„ ë°˜í™˜
                 noiseMap[x, y] = Mathf.InverseLerp(minNoiseHeight, maxNoiseHeight, noiseMap[x, y]);
             }
         }

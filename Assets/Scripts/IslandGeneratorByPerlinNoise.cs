@@ -25,7 +25,7 @@ public class IslandGeneratorByPerlinNoise : MonoBehaviour
 
     private void Start()
     {
-        //½Ãµå¸¦ ¸¸µé°í À§Ä¡¸¦ ±¸ÇÑ´Ù.
+        //ì‹œë“œë¥¼ ë§Œë“¤ê³  ìœ„ì¹˜ë¥¼ êµ¬í•œë‹¤.
         int temp = Time.time.ToString().GetHashCode();
         if (useRandomSeed) seed = temp.ToString();
         Random.InitState(temp);
@@ -44,7 +44,7 @@ public class IslandGeneratorByPerlinNoise : MonoBehaviour
 
     private void GenerateMap()
     {
-        float[,] noiseMap = perlinNoise.GenerateMap(width, height, scale, octaves, persistance, lacunarity, -yOrg, -xOrg); //³ëÀÌÁî ¸Ê »ý¼º
+        float[,] noiseMap = perlinNoise.GenerateMap(width, height, scale, octaves, persistance, lacunarity, -yOrg, -xOrg);
         float[,] gradientMap = gradient.GenerateMap(width, height);
         if (useGradientMap) mapDisplay.DrawNoiseMap(noiseMap, gradientMap);
         else mapDisplay.DrawNoiseMap(noiseMap, noiseMap);

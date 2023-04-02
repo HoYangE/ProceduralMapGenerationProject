@@ -16,14 +16,14 @@ public class Gradient : MonoBehaviour
         {
             for (int y = 0; y < height; y++)
             {
-                //Áß½ÉÀ¸·ÎºÎÅÍ ÇÈ¼¿ÀÇ °Å¸®
+                //ì¤‘ì‹¬ìœ¼ë¡œë¶€í„° í”½ì…€ì˜ ê±°ë¦¬
                 float distance = Vector2.Distance(new Vector2(x, y), new Vector2(width / 2, height / 2));
-                //°Å¸®¸¦ ¹ÝÁö¸§, ÇÈ¼¿ÀÇ ³Êºñ·Î ³ª´©¾î ±×¶óÀÌ¾ðÆ®¸¦ »ý¼º            
+                //ê±°ë¦¬ë¥¼ ë°˜ì§€ë¦„, í”½ì…€ì˜ ë„ˆë¹„ë¡œ ë‚˜ëˆ„ì–´ ê·¸ë¼ì´ì–¸íŠ¸ë¥¼ ìƒì„±            
                 float gradient = distance / (width * radius);
-                //0~1·Î º¯È¯
+                //0~1ë¡œ ë³€í™˜
                 gradient = Mathf.Clamp01(gradient);
 
-                //°ËÀº ¹ÙÅÁ¿¡ Èò ±×¶óÀÌ¾ðÆ® »ý¼º
+                //ê²€ì€ ë°”íƒ•ì— í° ê·¸ë¼ì´ì–¸íŠ¸ ìƒì„±
                 float calcHeight = 1 - Mathf.Lerp(lux * -1, 1, gradient);
                 heightMap[x, y] = calcHeight;
             }

@@ -40,8 +40,10 @@ public class MapDisplay : MonoBehaviour
     private Color CalcColor(float noiseValue, float gradientValue)
     {
         float value = noiseValue + gradientValue;
-        value = Mathf.InverseLerp(0, antiGrayscale, value); //³ëÀÌÁî ¸Ê°ú ±×¶óµğ¾ğÆ® ¸ÊÀ» ´õÇÑ °ªÀ» 0~1»çÀÌÀÇ °ªÀ¸·Î º¯È¯
-        Color color = Color.Lerp(Color.black, Color.white, value); //º¯È¯µÈ °ª¿¡ ÇØ´çÇÏ´Â »ö»óÀ» ±×·¹ÀÌ½ºÄÉÀÏ·Î ÀúÀå
+        //ë…¸ì´ì¦ˆ ë§µê³¼ ê·¸ë¼ë””ì–¸íŠ¸ ë§µì„ ë”í•œ ê°’ì„ 0~1ì‚¬ì´ì˜ ê°’ìœ¼ë¡œ ë³€í™˜
+        value = Mathf.InverseLerp(0, antiGrayscale, value);
+        //ë³€í™˜ëœ ê°’ì— í•´ë‹¹í•˜ëŠ” ìƒ‰ìƒì„ ê·¸ë ˆì´ìŠ¤ì¼€ì¼ë¡œ ì €ì¥
+        Color color = Color.Lerp(Color.black, Color.white, value);
         
         return color;
     }
