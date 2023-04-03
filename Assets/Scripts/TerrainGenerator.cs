@@ -2,11 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class TerrainGenerator : MonoBehaviour
 {
-    public Material material;
-    public int maxHeight = 100;
+    [SerializeField] private Material material;
+    [SerializeField] private int maxHeight = 100;
 
     private Texture2D heightmapTexture;
     private Terrain terrain;
@@ -37,7 +38,7 @@ public class TerrainGenerator : MonoBehaviour
 
         terrain.transform.position = Vector3.zero;
 
-        Tree();
+        TreeGenerator();
     }
 
     void SetTerrainHeight(TerrainData terrainData, Texture2D heightmapTexture)
@@ -59,48 +60,56 @@ public class TerrainGenerator : MonoBehaviour
         terrainData.SetHeights(0, 0, heights);
     }
 
-    public GameObject treePrefab; // assign the prefab in the Inspector
+    [SerializeField] private GameObject[] treePrefab;
+    [SerializeField] private int treeCount;
+    [SerializeField] private float blendLowMidErrorRange;
+    [SerializeField] private float blendMidHighErrorRange;
 
-    void Tree()
+    void TreeGenerator()
     {
-        for (int i = 0; i < 100; i++)
+        //나무 구조체
+        TreeInstance treeInstance = new TreeInstance();
+
+        //프리팹을 이용하여 Trees에 추가
+        for(int i = 0; i < treePrefab.Length; i++)
         {
-            // generate random position within the terrain bounds
-            float x = Random.Range(0f, terrain.terrainData.size.x);
-            float z = Random.Range(0f, terrain.terrainData.size.z);
-            Vector3 position = new Vector3(x, 0f, z);
+            terrain.terrainData.treePrototypes = terrain.terrainData.treePrototypes
+            .Concat(new TreePrototype[] { new TreePrototype() { prefab = treePrefab[i] } })
+            .ToArray();
+        }   
 
-            // get the terrain's height at the position
-            float height = terrain.SampleHeight(position);
+        //Scale이나 Color를 조절할 수 있음
+        treeInstance.widthScale = 100;
+        treeInstance.heightScale = 100;
+        treeInstance.color = Color.white;
+        treeInstance.lightmapColor = Color.white;
 
-            // create a new tree instance at the position with the prefab
-            TreeInstance treeInstance = new TreeInstance();
-            // get the normalized position on the terrain
+        for (int i = 0; i < treeCount; i++)
+        {
+            //랜덤으로 위치 잡기
+            Vector3 position = new Vector3(
+                Random.Range(0f, terrain.terrainData.size.x),
+                0f,
+                Random.Range(0f, terrain.terrainData.size.z));
+
+            //위치를 노말라이즈 시키기
             Vector3 normalizedPosition = new Vector3(
                 position.x / terrain.terrainData.size.x,
-                0f,
-                position.z / terrain.terrainData.size.z
-            );
+                terrain.SampleHeight(position) / terrain.terrainData.size.y,
+                position.z / terrain.terrainData.size.z);
 
-            // set the tree instance position
-            treeInstance.position = normalizedPosition;
+            //위치를 노말라이즈 시킨 값으로 설정
+            treeInstance.position = normalizedPosition;         
 
-            // get the normalized height on the terrain
-            float normalizedHeight = terrain.SampleHeight(position) / terrain.terrainData.size.y;
+            //Trees에서 몇번째 나무를 사용할지
+            if (normalizedPosition.y - blendMidHighErrorRange > 1 - terrain.materialTemplate.GetFloat("_BlendMidHigh"))
+                treeInstance.prototypeIndex = 0;
+            else if(normalizedPosition.y + blendLowMidErrorRange < terrain.materialTemplate.GetFloat("_BlendLowMid"))
+                treeInstance.prototypeIndex = 1;
+            else
+                treeInstance.prototypeIndex = 2;
 
-            // set the tree instance height
-            treeInstance.position.y = normalizedHeight;
-            treeInstance.widthScale = 1f;
-            treeInstance.heightScale = 1f;
-            treeInstance.color = Color.white;
-            treeInstance.lightmapColor = Color.white;
-
-            // apply the prefab to the tree instance
-            treeInstance.prototypeIndex = 0;
-            terrain.terrainData.treePrototypes = terrain.terrainData.treePrototypes
-                .Concat(new TreePrototype[] { new TreePrototype() { prefab = treePrefab } }).ToArray();
-
-            // add the tree instance to the terrain
+            //추가
             terrain.AddTreeInstance(treeInstance);
         }
     }

@@ -13,7 +13,7 @@ Shader "Custom/HightMapShader"
 
     SubShader 
     {
-        Tags { "RenderType"="Opaque" }
+        Tags { "RenderType"="Opaque" "TerrainCompatible"="true" }
 
         CGPROGRAM
         #pragma surface surf Lambert

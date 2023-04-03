@@ -4,20 +4,20 @@ using UnityEngine;
 
 public class IslandGeneratorByPerlinNoise : MonoBehaviour
 {
-    public int width = 256;
-    public int height = 256;
+    [SerializeField] private int width = 256;
+    [SerializeField] private int height = 256;
 
-    public float scale = 1.0f;
-    public int octaves = 3;
-    public float persistance = 0.5f;
-    public float lacunarity = 2;
+    [SerializeField] private float scale = 1.0f;
+    [SerializeField] private int octaves = 3;
+    [SerializeField] private float persistance = 0.5f;
+    [SerializeField] private float lacunarity = 2;
+
+    [SerializeField] private string seed;
+    [SerializeField] private bool useRandomSeed;
+    [SerializeField] private bool useGradientMap;    
 
     private float xOrg = 0;
-    private float yOrg = 0;
-
-    public string seed;
-    public bool useRandomSeed;
-    public bool useGradientMap;
+    private float yOrg = 0;    
 
     [SerializeField] private PerlinNoise perlinNoise;
     [SerializeField] private Gradient gradient;
@@ -39,6 +39,7 @@ public class IslandGeneratorByPerlinNoise : MonoBehaviour
         if (Input.GetMouseButtonDown(0))
         {
             Start();
+            //GenerateMap();
         }
     }
 

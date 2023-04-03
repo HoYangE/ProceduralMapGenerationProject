@@ -9,11 +9,6 @@ public class MapDisplay : MonoBehaviour
     [SerializeField] private GameObject terrain;
     [SerializeField] private float antiGrayscale = 2.5f;
 
-
-    [Range(0f, 1f)]
-    public float[] fillPercents;
-    public Color[] fillColors;
-
     public void DrawNoiseMap(float[,] noiseMap, float[,] gradientMap)
     {
         int width = noiseMap.GetLength(0);
@@ -34,7 +29,6 @@ public class MapDisplay : MonoBehaviour
         spriteRenderer.sprite = Sprite.Create(noiseTex, new Rect(0, 0, width, height), new Vector2(0.5f, 0.5f));
         material.SetTexture("_HeightMap", noiseTex);
         terrain.GetComponent<TerrainGenerator>().StartGenerator(width, height, noiseTex);
-
     }
 
     private Color CalcColor(float noiseValue, float gradientValue)
