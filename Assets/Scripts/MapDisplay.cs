@@ -7,6 +7,7 @@ public class MapDisplay : MonoBehaviour
     [SerializeField] private SpriteRenderer spriteRenderer;
     [SerializeField] private Material material;
     [SerializeField] private GameObject terrain;
+    [SerializeField] private GameObject voronoi;
     [SerializeField] private float antiGrayscale = 2.5f;
 
     public void DrawNoiseMap(float[,] noiseMap, float[,] gradientMap)
@@ -27,6 +28,7 @@ public class MapDisplay : MonoBehaviour
         noiseTex.Apply();
 
         spriteRenderer.sprite = Sprite.Create(noiseTex, new Rect(0, 0, width, height), new Vector2(0.5f, 0.5f));
+        voronoi.GetComponent<VoronoiDiagram>().StartGenerateVoronoiDiagram();
         material.SetTexture("_HeightMap", noiseTex);
         terrain.GetComponent<TerrainGenerator>().StartGenerator(width, height, noiseTex);
     }

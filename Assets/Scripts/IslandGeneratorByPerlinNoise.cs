@@ -31,6 +31,7 @@ public class IslandGeneratorByPerlinNoise : MonoBehaviour
         Random.InitState(temp);
         xOrg = Random.Range(0, 100000);
         yOrg = Random.Range(0, 100000);
+        //xOrg += 0.1f;
         GenerateMap();
     }
 
