@@ -14,23 +14,28 @@ public class MapDisplay : MonoBehaviour
     {
         int width = noiseMap.GetLength(0);
         int height = noiseMap.GetLength(1);
+        //스프라이트 이미지를 만들기 위해 텍스쳐를 만든다.
         Texture2D noiseTex = new Texture2D(width, height);
+        //텍스쳐를 포인트로 채우려고 한다.
         noiseTex.filterMode = FilterMode.Point;
         Color[] colorMap = new Color[width * height];
         for (int x = 0; x < width; x++)
         {
             for (int y = 0; y < height; y++)
             {
+                //모든 픽셀에 대해 연산 진행
                 colorMap[x * height + y] = CalcColor(noiseMap[x, y], gradientMap[x, y]);
             }
         }
+        //colorMap을 이용하여 텍스쳐 제작
         noiseTex.SetPixels(colorMap);
         noiseTex.Apply();
 
+        //텍스쳐를 기반으로 스프라이트 생성
         spriteRenderer.sprite = Sprite.Create(noiseTex, new Rect(0, 0, width, height), new Vector2(0.5f, 0.5f));
-        voronoi.GetComponent<VoronoiDiagram>().StartGenerateVoronoiDiagram();
+        StartCoroutine(VoronoiDiagramCoroutine());
         material.SetTexture("_HeightMap", noiseTex);
-        terrain.GetComponent<TerrainGenerator>().StartGenerator(width, height, noiseTex);
+        StartCoroutine(TerrainCoroutine(width, height, noiseTex));
     }
 
     private Color CalcColor(float noiseValue, float gradientValue)
@@ -42,5 +47,20 @@ public class MapDisplay : MonoBehaviour
         Color color = Color.Lerp(Color.black, Color.white, value);
         
         return color;
+    }
+    
+    IEnumerator VoronoiDiagramCoroutine()
+    {
+        Debug.Log("MapDisplay Done : " + Time.realtimeSinceStartup);
+        yield return null;
+        voronoi.GetComponent<VoronoiDiagram>().StartGenerateVoronoiDiagram();
+    }
+    IEnumerator TerrainCoroutine(int width, int height, Texture2D noiseTex)
+    {
+        Debug.Log("VoronoiDiagram Done : " + Time.realtimeSinceStartup);
+        yield return null;
+        terrain.GetComponent<TerrainGenerator>().StartGenerator(width, height, noiseTex);
+        yield return null;
+        Debug.Log("Terrain Done : " + Time.realtimeSinceStartup);
     }
 }

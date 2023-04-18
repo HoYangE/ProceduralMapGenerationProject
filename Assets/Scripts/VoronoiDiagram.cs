@@ -5,10 +5,14 @@ using UnityEngine.UI;
 
 public class VoronoiDiagram : MonoBehaviour
 {
-	public int cellWidth = 10;
-	public int cellHeight = 10;
-	public int textureWidth = 512;
-	public int textureHeight = 512;
+	[SerializeField]
+	private int cellWidth = 10;
+	[SerializeField]
+	private int cellHeight = 10;
+	[SerializeField]
+	private int textureWidth = 512;
+	[SerializeField]
+	private int textureHeight = 512;
 
 	public void StartGenerateVoronoiDiagram()
 	{
@@ -22,9 +26,11 @@ public class VoronoiDiagram : MonoBehaviour
 		int cellX = num % cellWidth;
 		int cellY = num / cellWidth;
 
+		//그리드를 이용하여 점 랜덤 구하기
 		float pointInGridX = Random.Range((numPointsWidth / cellWidth) * cellX, (numPointsWidth / cellWidth) * (cellX+1));
 		float pointInGridY = Random.Range((numPointsHeight / cellHeight) * cellY, (numPointsHeight / cellHeight) * (cellY+1));
 
+		//완전 랜덤
 		//float pointInGridX = Random.Range(0, numPointsWidth);
 		//float pointInGridY = Random.Range(0,numPointsHeight);
 		
@@ -42,7 +48,7 @@ public class VoronoiDiagram : MonoBehaviour
 		return points;
 	}
 	
-	public Texture2D GenerateVoronoiDiagram(int numPoints, int width, int height)
+	private Texture2D GenerateVoronoiDiagram(int numPoints, int width, int height)
 	{
 		//랜덤 포인트 구하기
 		List<Vector2> points = GenerateRandomPointsInGrid(width, height, numPoints);
@@ -57,6 +63,7 @@ public class VoronoiDiagram : MonoBehaviour
 				float minDistance = float.MaxValue;
 				Vector2 closestPoint = Vector2.zero;
 
+				//가까운 점 찾기
 				foreach (Vector2 point in points)
 				{
 					float distance = Vector2.Distance(new Vector2(x, y), point);

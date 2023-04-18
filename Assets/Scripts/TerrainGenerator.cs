@@ -18,21 +18,27 @@ public class TerrainGenerator : MonoBehaviour
         heightmapTexture = texture2D;
 
         TerrainData terrainData = new TerrainData();
+        
+        //오브젝트를 재활용 할것이니 컴포넌트가 없으면 추가해준다.
         if(terrain == null)
             terrain = gameObject.AddComponent<Terrain>();
+        
+        //콜라이더 추가 및 데이터 적용
         if (terrainCollider == null)
-        {
             terrainCollider = gameObject.AddComponent<TerrainCollider>();
-        }
+        
         terrainCollider.terrainData = terrainData;
 
         gameObject.GetComponent<Terrain>().terrainData = terrainData;
 
-        terrain.treeBillboardDistance = 1500;
+        //정사각형이므로 텍스쳐 해상도를 width로 지정
+        terrain.treeBillboardDistance = heightmapTexture.width;
+        //터레인의 최대 높이를 지정
         terrainData.heightmapResolution = heightmapTexture.width;
         terrainData.size = new Vector3(width, maxHeight, height);
         SetTerrainHeight(terrainData, heightmapTexture);
 
+        //원하는 머테리얼 적용
         terrain.materialTemplate = material;
         terrain.Flush();
 
@@ -51,8 +57,12 @@ public class TerrainGenerator : MonoBehaviour
         {
             for (int y = 0; y < height; y++)
             {
+                //픽셀의 색의 값을 0~255로 만들기
+                //텍스쳐의 좌표계와 터레인의 좌표계가 다른 문제가 있어 y, x로 적용
                 float heightValue = heightmapTexture.GetPixel(y, x).grayscale;
+                //255로 나눠서 높이값을 구하기
                 heightValue /= 255;
+                //원하는 터레인의 버텍스 높이위치를 계산
                 heights[x, y] = heightValue * maxHeight;
             }
         }

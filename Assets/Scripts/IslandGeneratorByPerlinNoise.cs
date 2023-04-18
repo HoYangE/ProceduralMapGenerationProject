@@ -46,8 +46,27 @@ public class IslandGeneratorByPerlinNoise : MonoBehaviour
 
     private void GenerateMap()
     {
+        //노이즈 맵 생성으로 좌표계를 일치시키기 위해 -yOrg, -xOrg을 넣어준다.
+        StartCoroutine(PerlinNoiseCoroutine());
+    }
+    IEnumerator PerlinNoiseCoroutine()
+    {
+        Debug.Log("GameStart : " + Time.realtimeSinceStartup);
+        yield return null;
         float[,] noiseMap = perlinNoise.GenerateMap(width, height, scale, octaves, persistance, lacunarity, -yOrg, -xOrg);
+        StartCoroutine(GradientCoroutine(noiseMap));
+    }
+    IEnumerator GradientCoroutine(float[,] noiseMap)
+    {
+        Debug.Log("PerlinNoise Done : " + Time.realtimeSinceStartup);
+        yield return null;
         float[,] gradientMap = gradient.GenerateMap(width, height);
+        StartCoroutine(MapDisplayCoroutine(noiseMap, gradientMap));
+    }
+    IEnumerator MapDisplayCoroutine(float[,] noiseMap, float[,] gradientMap)
+    {
+        Debug.Log("Gradient Done : " + Time.realtimeSinceStartup);
+        yield return null;
         if (useGradientMap) mapDisplay.DrawNoiseMap(noiseMap, gradientMap);
         else mapDisplay.DrawNoiseMap(noiseMap, noiseMap);
     }
