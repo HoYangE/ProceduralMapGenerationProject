@@ -31,8 +31,9 @@ public class TerrainGenerator : MonoBehaviour
 
         gameObject.GetComponent<Terrain>().terrainData = terrainData;
 
-        //정사각형이므로 텍스쳐 해상도를 width로 지정
-        terrain.treeBillboardDistance = heightmapTexture.width;
+        terrain.treeBillboardDistance = 2000;
+        terrain.heightmapPixelError = 15;
+        
         //터레인의 최대 높이를 지정
         terrainData.heightmapResolution = heightmapTexture.width;
         terrainData.size = new Vector3(width, maxHeight, height);
@@ -47,10 +48,10 @@ public class TerrainGenerator : MonoBehaviour
         TreeGenerator();
     }
 
-    void SetTerrainHeight(TerrainData terrainData, Texture2D heightmapTexture)
+    void SetTerrainHeight(TerrainData terrainData, Texture2D texture)
     {
-        int width = heightmapTexture.width;
-        int height = heightmapTexture.height;
+        int width = texture.width;
+        int height = texture.height;
         float[,] heights = new float[width, height];
 
         for (int x = 0; x < width; x++)
@@ -59,7 +60,7 @@ public class TerrainGenerator : MonoBehaviour
             {
                 //픽셀의 색의 값을 0~255로 만들기
                 //텍스쳐의 좌표계와 터레인의 좌표계가 다른 문제가 있어 y, x로 적용
-                float heightValue = heightmapTexture.GetPixel(y, x).grayscale;
+                float heightValue = texture.GetPixel(y, x).grayscale;
                 //255로 나눠서 높이값을 구하기
                 heightValue /= 255;
                 //원하는 터레인의 버텍스 높이위치를 계산
@@ -89,8 +90,8 @@ public class TerrainGenerator : MonoBehaviour
         }   
 
         //Scale이나 Color를 조절할 수 있음
-        treeInstance.widthScale = 100;
-        treeInstance.heightScale = 100;
+        treeInstance.widthScale = 20;
+        treeInstance.heightScale = 20;
         treeInstance.color = Color.white;
         treeInstance.lightmapColor = Color.white;
 

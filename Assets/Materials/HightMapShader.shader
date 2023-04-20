@@ -12,6 +12,8 @@ Shader "Custom/HightMapShader"
         //높이 제한 값
         _BlendLowMid ("Blend Low-Mid", Range(0, 1)) = 0.5
         _BlendMidHigh ("Blend Mid-High", Range(0, 1)) = 0.5
+        //블렌드 값
+        _BlendScale ("Blend Scale", Range(0, 1)) = 0.1
     }
 
     SubShader 
@@ -32,6 +34,7 @@ Shader "Custom/HightMapShader"
         sampler2D _HeightMap;
         float _BlendLowMid;
         float _BlendMidHigh;
+        float _BlendScale;
 
         struct Input 
         {
@@ -42,13 +45,18 @@ Shader "Custom/HightMapShader"
         void surf (Input IN, inout SurfaceOutput o)
         {
             float height = tex2D(_HeightMap, IN.uv_HeightMap).r;
-
-            if (height < _BlendLowMid) 
-                o.Albedo = tex2D(_LowTex, IN.uv_MainTex).rgb;
-            else if (height < _BlendMidHigh) 
-                o.Albedo = tex2D(_MidTex, IN.uv_MainTex).rgb;
-            else 
-                o.Albedo = tex2D(_HighTex, IN.uv_MainTex).rgb;
+            
+             o.Albedo = tex2D(_HighTex, IN.uv_MainTex).rgb;
+             if(height < _BlendMidHigh + _BlendScale)
+                 o.Albedo = lerp(tex2D(_MidTex, IN.uv_MainTex).rgb, tex2D(_HighTex, IN.uv_MainTex).rgb,
+                 (height - _BlendMidHigh + _BlendScale) / (_BlendScale*2));
+             if(height < _BlendMidHigh - _BlendScale)
+                 o.Albedo = tex2D(_MidTex, IN.uv_MainTex).rgb;
+             if(height < _BlendLowMid + _BlendScale)
+                 o.Albedo = lerp(tex2D(_LowTex, IN.uv_MainTex).rgb, tex2D(_MidTex, IN.uv_MainTex).rgb,
+                 (height - _BlendLowMid + _BlendScale) / (_BlendScale*2));
+             if(height < _BlendLowMid - _BlendScale)
+                 o.Albedo = tex2D(_LowTex, IN.uv_MainTex).rgb;
         }
         ENDCG
     }
