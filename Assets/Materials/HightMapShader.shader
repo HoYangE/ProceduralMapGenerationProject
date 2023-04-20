@@ -46,17 +46,33 @@ Shader "Custom/HightMapShader"
         {
             float height = tex2D(_HeightMap, IN.uv_HeightMap).r;
             
-             o.Albedo = tex2D(_HighTex, IN.uv_MainTex).rgb;
-             if(height < _BlendMidHigh + _BlendScale)
-                 o.Albedo = lerp(tex2D(_MidTex, IN.uv_MainTex).rgb, tex2D(_HighTex, IN.uv_MainTex).rgb,
-                 (height - _BlendMidHigh + _BlendScale) / (_BlendScale*2));
-             if(height < _BlendMidHigh - _BlendScale)
-                 o.Albedo = tex2D(_MidTex, IN.uv_MainTex).rgb;
-             if(height < _BlendLowMid + _BlendScale)
-                 o.Albedo = lerp(tex2D(_LowTex, IN.uv_MainTex).rgb, tex2D(_MidTex, IN.uv_MainTex).rgb,
-                 (height - _BlendLowMid + _BlendScale) / (_BlendScale*2));
-             if(height < _BlendLowMid - _BlendScale)
-                 o.Albedo = tex2D(_LowTex, IN.uv_MainTex).rgb;
+            //pixel not error
+            o.Albedo = tex2D(_HighTex, IN.uv_MainTex).rgb;
+            if(height < _BlendMidHigh + _BlendScale)
+                o.Albedo = lerp(tex2D(_MidTex, IN.uv_MainTex).rgb, tex2D(_HighTex, IN.uv_MainTex).rgb,
+                (height - _BlendMidHigh + _BlendScale) / (_BlendScale*2));
+            if(height < _BlendMidHigh - _BlendScale)
+                o.Albedo = tex2D(_MidTex, IN.uv_MainTex).rgb;
+            if(height < _BlendLowMid + _BlendScale)
+                o.Albedo = lerp(tex2D(_LowTex, IN.uv_MainTex).rgb, tex2D(_MidTex, IN.uv_MainTex).rgb,
+                (height - _BlendLowMid + _BlendScale) / (_BlendScale*2));
+            if(height < _BlendLowMid - _BlendScale)
+                o.Albedo = tex2D(_LowTex, IN.uv_MainTex).rgb;
+
+            //pixel error
+            //if(height < _BlendLowMid - _BlendScale)
+            //    o.Albedo = tex2D(_LowTex, IN.uv_MainTex).rgb;
+            //else if(height <= _BlendLowMid + _BlendScale)
+            //    o.Albedo = lerp(tex2D(_LowTex, IN.uv_MainTex).rgb, tex2D(_MidTex, IN.uv_MainTex).rgb,
+            //    (height - _BlendLowMid + _BlendScale) / (_BlendScale*2));
+            //else if(height <= _BlendMidHigh - _BlendScale)
+            //    o.Albedo = tex2D(_MidTex, IN.uv_MainTex).rgb;
+            //else if(height <= _BlendMidHigh + _BlendScale)
+            //    o.Albedo = lerp(tex2D(_MidTex, IN.uv_MainTex).rgb, tex2D(_HighTex, IN.uv_MainTex).rgb,
+            //    (height - _BlendMidHigh + _BlendScale) / (_BlendScale*2));            
+            //else
+            //    o.Albedo = tex2D(_HighTex, IN.uv_MainTex).rgb;
+
         }
         ENDCG
     }

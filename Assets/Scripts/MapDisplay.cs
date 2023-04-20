@@ -53,7 +53,7 @@ public class MapDisplay : MonoBehaviour
     {
         Debug.Log("MapDisplay Done : " + Time.realtimeSinceStartup);
         yield return null;
-        voronoi.GetComponent<VoronoiDiagram>().StartGenerateVoronoiDiagram();
+        //voronoi.GetComponent<VoronoiDiagram>().StartGenerateVoronoiDiagram();
     }
     IEnumerator TerrainCoroutine(int width, int height, Texture2D noiseTex)
     {

@@ -26,7 +26,7 @@ public class IslandGeneratorByPerlinNoise : MonoBehaviour
     private void Start()
     {
         //시드를 만들고 위치를 구한다.
-        int temp = Time.time.ToString().GetHashCode();
+        int temp = Time.realtimeSinceStartup.ToString().GetHashCode();
         if (useRandomSeed) seed = temp.ToString();
         Random.InitState(temp);
         xOrg = Random.Range(0, 100000);
