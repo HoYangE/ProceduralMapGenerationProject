@@ -770,8 +770,8 @@ MonoBehaviour:
   - {fileID: 4385080170328260021, guid: ff62b58c5a9ea164fa8ddf8038e10cd1, type: 3}
   - {fileID: 4680757731160225450, guid: 0fde05fa0f3321942a21896ff4f0856f, type: 3}
   treeCount: 1000
-  blendLowMidErrorRange: 0.1
-  blendMidHighErrorRange: 0.15
+  blendLowMidErrorRange: 0.08
+  blendMidHighErrorRange: 0.26
 --- !u!4 &1391510357
 Transform:
   m_ObjectHideFlags: 0
