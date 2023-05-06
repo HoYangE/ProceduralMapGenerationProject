@@ -1,5 +1,8 @@
+
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using csDelaunay;
 using UnityEngine;
 
 public class MapDisplay : MonoBehaviour
@@ -7,10 +10,9 @@ public class MapDisplay : MonoBehaviour
     [SerializeField] private SpriteRenderer spriteRenderer;
     [SerializeField] private Material material;
     [SerializeField] private GameObject terrain;
-    [SerializeField] private GameObject voronoi;
     [SerializeField] private float antiGrayscale = 2.5f;
 
-    public void DrawNoiseMap(float[,] noiseMap, float[,] gradientMap)
+    public void DrawNoiseMap(float[,] noiseMap, float[,] gradientMap, Tuple<float[,],Voronoi> voronoiDiagram)
     {
         int width = noiseMap.GetLength(0);
         int height = noiseMap.GetLength(1);
@@ -27,13 +29,13 @@ public class MapDisplay : MonoBehaviour
                 colorMap[x * height + y] = CalcColor(noiseMap[x, y], gradientMap[x, y]);
             }
         }
+        
         //colorMap을 이용하여 텍스쳐 제작
         noiseTex.SetPixels(colorMap);
         noiseTex.Apply();
-
+        
         //텍스쳐를 기반으로 스프라이트 생성
         spriteRenderer.sprite = Sprite.Create(noiseTex, new Rect(0, 0, width, height), new Vector2(0.5f, 0.5f));
-        StartCoroutine(VoronoiDiagramCoroutine());
         material.SetTexture("_HeightMap", noiseTex);
         StartCoroutine(TerrainCoroutine(width, height, noiseTex));
     }
@@ -49,18 +51,11 @@ public class MapDisplay : MonoBehaviour
         return color;
     }
     
-    IEnumerator VoronoiDiagramCoroutine()
-    {
-        Debug.Log("MapDisplay Done : " + Time.realtimeSinceStartup);
-        yield return null;
-        //voronoi.GetComponent<VoronoiDiagram>().StartGenerateVoronoiDiagram();
-    }
     IEnumerator TerrainCoroutine(int width, int height, Texture2D noiseTex)
     {
-        Debug.Log("VoronoiDiagram Done : " + Time.realtimeSinceStartup);
+        Debug.Log("Terrain Start : " + Time.realtimeSinceStartup);
         yield return null;
         terrain.GetComponent<TerrainGenerator>().StartGenerator(width, height, noiseTex);
-        yield return null;
-        Debug.Log("Terrain Done : " + Time.realtimeSinceStartup);
+        Debug.Log("Terrain End : " + Time.realtimeSinceStartup);
     }
 }

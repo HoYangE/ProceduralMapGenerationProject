@@ -1,8 +1,10 @@
+using System;
 using csDelaunay;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 internal abstract class MapDrawer
 {
@@ -24,26 +26,9 @@ internal abstract class MapDrawer
             var pointIndex = (y * width) + x;
             pixelColors[pointIndex] = Color.red;
         }
-        
+
         // 원하는 셀 색칠하기
-        Vector2Int test = new Vector2Int(400, 100);
-        var cellIndex = (test.y * width) + test.x;
-        pixelColors[cellIndex] = Color.yellow;
-        int target = 0;
-        float maxDistance = float.MaxValue;
-        // 가장 가까운 무게중심 찾기
-        for (int i = 0; i < voronoi.Sites.Count; i++)
-        {
-            float distance = Vector2.Distance(test, voronoi.Sites[i].Coord);
-            if (distance < maxDistance)
-            {
-                maxDistance = distance;
-                target = i;
-            }
-        }
-        // 가장 가까운 무게중심의 셀의 모서리 픽셀들을 구함
-        var positions = voronoi.Sites[target].Region(rect);
-        pixelColors = FillPolygonWithColor(positions, Color.cyan, pixelColors, new Vector2Int(width, height));
+        //pixelColors = CellColor(new Vector2Int(400, 100), pixelColors, voronoi,rect, width, height);
 
         // 모서리 그리기
         // 먼저 모든 폴리곤의 정보를 얻어온다.
@@ -101,6 +86,29 @@ internal abstract class MapDrawer
         return sprite;
     }
 
+    private static Color[] CellColor(Vector2Int point, Color[] currentColor, Voronoi voronoi, Rect rect, int width,int height)
+    {
+        var pixelColors = currentColor;
+        var cellIndex = (point.y * width) + point.x;
+        pixelColors[cellIndex] = Color.yellow;
+        int target = 0;
+        float maxDistance = float.MaxValue;
+        // 가장 가까운 무게중심 찾기
+        for (int i = 0; i < voronoi.Sites.Count; i++)
+        {
+            float distance = Vector2.Distance(point, voronoi.Sites[i].Coord);
+            if (distance < maxDistance)
+            {
+                maxDistance = distance;
+                target = i;
+            }
+        }
+        // 가장 가까운 무게중심의 셀의 모서리 픽셀들을 구함
+        var positions = voronoi.Sites[target].Region(rect);
+        pixelColors = FillPolygonWithColor(positions, Color.cyan, pixelColors, new Vector2Int(width, height));
+        return pixelColors;
+    }
+    
     private static Color[] FillPolygonWithColor(List<Vector2> vertices, Color fillColor, Color[] currentColor, Vector2Int size)
     {
         // 다각형의 경계를 둘러싸는 바운딩 박스를 계산
@@ -154,10 +162,26 @@ public class VoronoiDiagram : MonoBehaviour
     [SerializeField]
     private int lloydIterationCount = 0;
 
-    private void Awake()
+    public Tuple<float[,],Voronoi> StartGenerateVoronoiDiagram()
     {
         var voronoi = GenerateVoronoi(size, nodeAmount, lloydIterationCount);
-        GetComponent<SpriteRenderer>().sprite = MapDrawer.DrawVoronoiToSprite(voronoi);
+        var sprite = MapDrawer.DrawVoronoiToSprite(voronoi);
+        GetComponent<SpriteRenderer>().sprite = sprite;
+        
+        Texture2D texture = sprite.texture;
+        Color32[] colors = texture.GetPixels32();
+        float[,] floatArray = new float[texture.width, texture.height];
+
+        for (int y = 0; y < texture.height; y++)
+        {
+            for (int x = 0; x < texture.width; x++)
+            {
+                Color32 color = colors[x + y * texture.width];
+                // 픽셀 값을 0과 1 사이의 값으로 변환
+                floatArray[x, y] = (color.r + color.g + color.b) / 765.0f;
+            }
+        }
+        return new Tuple<float[,], Voronoi>(floatArray, voronoi);
     }
 
     private Voronoi GenerateVoronoi(Vector2Int vector2Int, int amount, int count)

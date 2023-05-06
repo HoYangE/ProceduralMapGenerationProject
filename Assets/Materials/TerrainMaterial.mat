@@ -115,7 +115,7 @@ Material:
     m_Floats:
     - _BlendLowMid: 0.259
     - _BlendMidHigh: 0.706
-    - _BlendScale: 0.022
+    - _BlendScale: 0.032
     - _BumpScale: 1
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1

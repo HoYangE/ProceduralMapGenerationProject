@@ -1,6 +1,9 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using csDelaunay;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class IslandGeneratorByPerlinNoise : MonoBehaviour
 {
@@ -19,6 +22,14 @@ public class IslandGeneratorByPerlinNoise : MonoBehaviour
     private float xOrg = 0;
     private float yOrg = 0;    
 
+    private float[,] noiseMap;
+    private float[,] gradientMap;
+    private Tuple<float[,],Voronoi> voronoiDiagram;
+    private bool noiseMapDone = false;
+    private bool gradientMapDone = false;
+    private bool voronoiDone = false;
+
+    [SerializeField] private GameObject voronoi;
     [SerializeField] private PerlinNoise perlinNoise;
     [SerializeField] private Gradient gradient;
     [SerializeField] private MapDisplay mapDisplay;
@@ -46,28 +57,38 @@ public class IslandGeneratorByPerlinNoise : MonoBehaviour
 
     private void GenerateMap()
     {
-        //노이즈 맵 생성으로 좌표계를 일치시키기 위해 -yOrg, -xOrg을 넣어준다.
+        StartCoroutine(VoronoiDiagramCoroutine());
         StartCoroutine(PerlinNoiseCoroutine());
+        StartCoroutine(GradientCoroutine());
+        StartCoroutine(MapDisplayCoroutine());
+    }
+    
+    IEnumerator VoronoiDiagramCoroutine()
+    {
+        Debug.Log("Voronoi Start : " + Time.realtimeSinceStartup);
+        yield return null;
+        voronoiDiagram = voronoi.GetComponent<VoronoiDiagram>().StartGenerateVoronoiDiagram();
+        voronoiDone = true;
     }
     IEnumerator PerlinNoiseCoroutine()
     {
-        Debug.Log("GameStart : " + Time.realtimeSinceStartup);
+        Debug.Log("PerlinNoise Start : " + Time.realtimeSinceStartup);
         yield return null;
-        float[,] noiseMap = perlinNoise.GenerateMap(width, height, scale, octaves, persistance, lacunarity, -yOrg, -xOrg);
-        StartCoroutine(GradientCoroutine(noiseMap));
+        noiseMap = perlinNoise.GenerateMap(width, height, scale, octaves, persistance, lacunarity, -yOrg, -xOrg);
+        noiseMapDone = true;
     }
-    IEnumerator GradientCoroutine(float[,] noiseMap)
+    IEnumerator GradientCoroutine()
     {
-        Debug.Log("PerlinNoise Done : " + Time.realtimeSinceStartup);
+        Debug.Log("Gradient Start : " + Time.realtimeSinceStartup);
         yield return null;
-        float[,] gradientMap = gradient.GenerateMap(width, height);
-        StartCoroutine(MapDisplayCoroutine(noiseMap, gradientMap));
+        gradientMap = gradient.GenerateMap(width, height);
+        gradientMapDone = true;
     }
-    IEnumerator MapDisplayCoroutine(float[,] noiseMap, float[,] gradientMap)
+    IEnumerator MapDisplayCoroutine()
     {
-        Debug.Log("Gradient Done : " + Time.realtimeSinceStartup);
+        yield return new WaitUntil(() => noiseMapDone && gradientMapDone && voronoiDone);
+        Debug.Log("MapDisplay Start : " + Time.realtimeSinceStartup);
         yield return null;
-        if (useGradientMap) mapDisplay.DrawNoiseMap(noiseMap, gradientMap);
-        else mapDisplay.DrawNoiseMap(noiseMap, noiseMap);
+        mapDisplay.DrawNoiseMap(noiseMap, useGradientMap ? gradientMap : noiseMap, voronoiDiagram);
     }
 }
