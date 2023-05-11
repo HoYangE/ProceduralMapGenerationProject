@@ -1,16 +1,20 @@
-
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using csDelaunay;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class MapDisplay : MonoBehaviour
 {
     [SerializeField] private SpriteRenderer spriteRenderer;
+    [SerializeField] private SpriteRenderer newVoronoiSpriteRenderer;
     [SerializeField] private Material material;
     [SerializeField] private GameObject terrain;
     [SerializeField] private float antiGrayscale = 2.5f;
+    [SerializeField] private float waterHeight = 0.0f;
+    [SerializeField] private int riverStartPoint = 100;
+    [SerializeField] private int riverLength = 30;
 
     public void DrawNoiseMap(float[,] noiseMap, float[,] gradientMap, Tuple<float[,],Voronoi> voronoiDiagram)
     {
@@ -20,6 +24,7 @@ public class MapDisplay : MonoBehaviour
         Texture2D noiseTex = new Texture2D(width, height);
         //텍스쳐를 포인트로 채우려고 한다.
         noiseTex.filterMode = FilterMode.Point;
+        
         Color[] colorMap = new Color[width * height];
         for (int x = 0; x < width; x++)
         {
@@ -29,7 +34,9 @@ public class MapDisplay : MonoBehaviour
                 colorMap[x * height + y] = CalcColor(noiseMap[x, y], gradientMap[x, y]);
             }
         }
-        
+
+        WaterLayer(voronoiDiagram, colorMap, width, height);
+
         //colorMap을 이용하여 텍스쳐 제작
         noiseTex.SetPixels(colorMap);
         noiseTex.Apply();
@@ -49,6 +56,23 @@ public class MapDisplay : MonoBehaviour
         Color color = Color.Lerp(Color.black, Color.white, value);
         
         return color;
+    }
+
+    private void WaterLayer(Tuple<float[,],Voronoi> voronoiDiagram, Color[] colorMap, int width, int height)
+    {
+        //물 높이 이하의 보로노이는 파랑으로 채운다.
+        var points = new List<Vector2>();
+        foreach (var site in voronoiDiagram.Item2.Sites)
+        {
+            if (colorMap[(int)site.Coord.y * height + (int)site.Coord.x].r < waterHeight)
+            {
+                points.Add(new Vector2Int((int)site.Coord.x, (int)site.Coord.y));
+            }
+        }
+        
+        //습도 보로노이 스프라이트 생성
+        newVoronoiSpriteRenderer.sprite = MapDrawer.DrawRiverToSprite(MapDrawer.DrawVoronoiToSprite(voronoiDiagram.Item2, points), 
+            voronoiDiagram.Item2, colorMap, riverStartPoint, riverLength);
     }
     
     IEnumerator TerrainCoroutine(int width, int height, Texture2D noiseTex)

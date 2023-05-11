@@ -6,8 +6,10 @@ using UnityEngine.UIElements;
 
 public class TerrainGenerator : MonoBehaviour
 {
+    [SerializeField] private GameObject waterPlane;
     [SerializeField] private Material material;
     [SerializeField] private int maxHeight = 100;
+    [SerializeField] private float waterHeight = 0.0f;
 
     private Texture2D heightmapTexture;
     private Terrain terrain;
@@ -46,6 +48,8 @@ public class TerrainGenerator : MonoBehaviour
         terrain.transform.position = Vector3.zero;
 
         TreeGenerator();
+
+        waterPlane.transform.position = new Vector3(width / 2.0f,  terrain.GetComponent<Terrain>().terrainData.size.y * waterHeight, height / 2.0f);
     }
 
     void SetTerrainHeight(TerrainData terrainData, Texture2D texture)
