@@ -8,7 +8,9 @@ using Random = UnityEngine.Random;
 public class MapDisplay : MonoBehaviour
 {
     [SerializeField] private SpriteRenderer spriteRenderer;
-    [SerializeField] private SpriteRenderer newVoronoiSpriteRenderer;
+    [SerializeField] private SpriteRenderer humidityVoronoiSpriteRenderer;
+    [SerializeField] private SpriteRenderer riverSpriteRenderer;
+
     [SerializeField] private Material material;
     [SerializeField] private GameObject terrain;
     [SerializeField] private float antiGrayscale = 2.5f;
@@ -69,10 +71,13 @@ public class MapDisplay : MonoBehaviour
                 points.Add(new Vector2Int((int)site.Coord.x, (int)site.Coord.y));
             }
         }
-        
-        //습도 보로노이 스프라이트 생성
-        newVoronoiSpriteRenderer.sprite = MapDrawer.DrawRiverToSprite(MapDrawer.DrawVoronoiToSprite(voronoiDiagram.Item2, points), 
+
+        var temp = MapDrawer.DrawRiverToSprite(MapDrawer.DrawVoronoiToSprite(voronoiDiagram.Item2, points),
             voronoiDiagram.Item2, colorMap, riverStartPoint, riverLength);
+        //습도 보로노이 스프라이트 생성
+        humidityVoronoiSpriteRenderer.sprite = temp.Item1;
+        riverSpriteRenderer.sprite = temp.Item2;
+        
     }
     
     IEnumerator TerrainCoroutine(int width, int height, Texture2D noiseTex)

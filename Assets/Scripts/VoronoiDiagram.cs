@@ -39,42 +39,82 @@ internal abstract class MapDrawer
         return DrawSprite(size, pixelColors);
     }
 
-    public static Sprite DrawRiverToSprite(Sprite sprite, Voronoi voronoi, Color[] heightMap, int startPoint, int riverLength)
+    public static Tuple<Sprite,Sprite> DrawRiverToSprite(Sprite sprite, Voronoi voronoi, Color[] heightMap, int startPoint, int riverLength)
     {
         Texture2D texture = sprite.texture;
         var rect = voronoi.PlotBounds;
         var width = Mathf.RoundToInt(rect.width);
         var height = Mathf.RoundToInt(rect.height);
         Color[] pixelColors = texture.GetPixels();
-
+        Color[] riverColors = Enumerable.Repeat(Color.white, width * height).ToArray();
+            
         for (int i = 0; i < startPoint; i++)
         {
             //랜덤으로 강이 시작할 지점 정하기
             int x = Random.Range(0, width);
             int y = Random.Range(0, height);
 
-            if (texture.GetPixel(x, y) == Color.white)
+            var startSite = voronoi.Sites[FindNearSite(new Vector2Int(x, y), voronoi)];
+            var startCellPos = startSite.Coord;
+            
+            //해당 지점이 땅이 아니라면 다시 정하기
+            if (texture.GetPixel(x, y).r == 1)
             {
-                pixelColors = CellInside(new Vector2(x,y), pixelColors, voronoi, rect, width, height, new Color(1,0,0.5f));
-
+                //강 시작은 흰색 영역에서만 가능
+                if(texture.GetPixel(x, y).b == 1)
+                    pixelColors = CellInside(new Vector2(x,y), pixelColors, voronoi, rect, width, height, new Color(1,0,0.1f));
+                else
+                {
+                    i--;
+                    continue;
+                }
+                
                 Vector2 findTarget = new Vector2(x, y);
+
+                //가장 가까운 무게중심 찾기
+                int target = FindNearSite(findTarget, voronoi);
+                findTarget = voronoi.Sites[target].Coord;
+                var temp = FlowDraw(pixelColors, riverColors,new Vector2Int(x, y),
+                    new Vector2Int((int)findTarget.x, (int)findTarget.y),
+                    new Vector2Int(width, height), 0);
+                pixelColors = temp.Item1;
+                riverColors = temp.Item2;
+                
                 for (int loopCount = 0; loopCount < riverLength; loopCount++)
                 {
-                    // 가장 가까운 무게중심 찾기
-                    int target = FindNearSite(findTarget, voronoi);
-                    // 루프를 위해 찾기위한 타겟을 저장
+                    target = FindNearSite(findTarget, voronoi);
+
+                    //인접한 셀 중 가장 낮은 높이를 가진 셀의 좌표 찾기
                     findTarget = FindLowHeightNearSite(voronoi.Sites[target], heightMap, width, height);
-                    if(!(findTarget.x != -1 && pixelColors[(int)findTarget.y * height + (int)findTarget.x] == Color.white))
+
+                    //가장 낮은 셀을 못찾거나 위치가 흰색(1,1,1)이나 강(1,0,x)이 아니면 루프를 끝냄
+                    if(findTarget.x != -1 && pixelColors[(int)findTarget.y * height + (int)findTarget.x].r != 1)
                         break;
+
+                    //주위에서 가장 낮은 높이를 가진 셀이 자신의 높이보다 높으면 루프를 끝냄
+                    if(heightMap[(int)findTarget.y * width + (int)findTarget.x].r >= heightMap[(int)startCellPos.y * width + (int)startCellPos.x].r)
+                        break;
+                    
+                    //가장 낮은 셀 강으로 색칠
                     pixelColors = RiverDraw(voronoi, rect, pixelColors, findTarget, width, height, loopCount);
+                    temp = FlowDraw(pixelColors, riverColors,new Vector2Int((int)startCellPos.x, (int)startCellPos.y),
+                        new Vector2Int((int)findTarget.x, (int)findTarget.y),
+                        new Vector2Int(width, height), loopCount + 1);
+                    pixelColors = temp.Item1;
+                    riverColors = temp.Item2;
+                    
+                    startCellPos = findTarget;
                 }
             }
+            else
+            {
+                i--;
+            }
         }
-        
-        
+
         //텍스쳐화 시키고 스프라이트로 만들기
         var size = new Vector2Int(width, height);
-        return DrawSprite(size, pixelColors);
+        return new Tuple<Sprite, Sprite>(DrawSprite(size, pixelColors),DrawSprite(size, riverColors));
     }
     
     private static Sprite DrawSprite(Vector2Int size, Color[] colorData)
@@ -164,6 +204,7 @@ internal abstract class MapDrawer
     private static Color[] CellNearInside(Site site, Color[] currentColor, Rect rect, int width,int height, Color waterColor)
     {
         var pixelColors = currentColor;
+        //인접 셀 구하기
         var neighbors = site.NeighborSites();
 
         for (int i = 0; i < neighbors.Count; i++)
@@ -219,11 +260,56 @@ internal abstract class MapDrawer
     {
         var pixelColors = currentColor;
         
-        pixelColors = CellInside(target, pixelColors, voronoi, rect, width, height, new Color(1,0,0.4f - loopCount * 0.04f));
+        var fillColor = new Color(1,0,0)
+        {
+            b = Mathf.Clamp((1-pixelColors[(int)target.y * height + (int)target.x].b) + (0.2f + (loopCount+1) * 0.2f), 0, 1)
+        };
+        pixelColors = CellInside(target, pixelColors, voronoi, rect, width, height, fillColor);
 
         return pixelColors;
     }
-    
+
+    private static Tuple<Color[],Color[]> FlowDraw(Color[] currentColor, Color[] currentRiverColor, Vector2Int before, Vector2Int after, Vector2Int size, int loopCount)
+    {
+        var riverSprite = currentRiverColor;
+        var pixelColors = currentColor;
+
+        Vector2Int delta = after - before;
+        int dx = Mathf.Abs(delta.x);
+        int dy = Mathf.Abs(delta.y);
+        int sx = (before.x < after.x) ? 1 : -1;
+        int sy = (before.y < after.y) ? 1 : -1;
+        int err = dx - dy;
+
+        while (true)
+        {
+            riverSprite[before.y * size.y + before.x] = new Color(0,0,0f);
+            //pixelColors[before.y * size.y + before.x] = new Color(1,0,0.9f);
+
+            if (before == after)
+            {
+                break;
+            }
+
+            int err2 = err * 2;
+
+            if (err2 > -dy)
+            {
+                err -= dy;
+                before.x += sx;
+            }
+
+            if (err2 < dx)
+            {
+                err += dx;
+                before.y += sy;
+            }
+        }
+
+        var returnTuple = new Tuple<Color[], Color[]>(pixelColors, riverSprite);
+        return returnTuple;
+    }
+
     #endregion
 
     private static Color[] FillPolygonWithColor(List<Vector2> vertices, Color fillColor, Color[] currentColor, Vector2Int size)
@@ -272,6 +358,8 @@ internal abstract class MapDrawer
 public class VoronoiDiagram : MonoBehaviour
 {
     [SerializeField]
+    private SpriteRenderer spriteRenderer;
+    [SerializeField]
     private Vector2Int size;
     [SerializeField] 
     private int nodeAmount = 0;
@@ -282,7 +370,7 @@ public class VoronoiDiagram : MonoBehaviour
     {
         var voronoi = GenerateVoronoi(size, nodeAmount, lloydIterationCount);
         var sprite = MapDrawer.DrawVoronoiToSprite(voronoi);
-        GetComponent<SpriteRenderer>().sprite = sprite;
+        spriteRenderer.GetComponent<SpriteRenderer>().sprite = sprite;
         
         Texture2D texture = sprite.texture;
         Color32[] colors = texture.GetPixels32();
@@ -297,6 +385,7 @@ public class VoronoiDiagram : MonoBehaviour
                 floatArray[x, y] = (color.r + color.g + color.b) / 765.0f;
             }
         }
+
         return new Tuple<float[,], Voronoi>(floatArray, voronoi);
     }
 
