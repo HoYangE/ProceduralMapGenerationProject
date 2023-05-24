@@ -12,13 +12,15 @@ public class TerrainGenerator : MonoBehaviour
     [SerializeField] private float waterHeight = 0.0f;
 
     private Texture2D heightmapTexture;
+    private Texture2D waterTexture;
     private Terrain terrain;
     private TerrainCollider terrainCollider;
 
-    public void StartGenerator(int width, int height, Texture2D texture2D) 
+    public void StartGenerator(int width, int height, Texture2D heightTexture2D, Texture2D waterTexture2D) 
     {
-        heightmapTexture = texture2D;
-
+        heightmapTexture = heightTexture2D;
+        waterTexture = waterTexture2D;
+        
         TerrainData terrainData = new TerrainData();
         
         //오브젝트를 재활용 할것이니 컴포넌트가 없으면 추가해준다.
@@ -114,15 +116,60 @@ public class TerrainGenerator : MonoBehaviour
                 position.z / terrain.terrainData.size.z);
 
             //위치를 노말라이즈 시킨 값으로 설정
-            treeInstance.position = normalizedPosition;         
-
+            treeInstance.position = normalizedPosition;        
+            
+            float water = waterTexture.GetPixel((int)position.x, (int)position.z).b;
             //Trees에서 몇번째 나무를 사용할지
             if (normalizedPosition.y - blendMidHighErrorRange > 1 - terrain.materialTemplate.GetFloat("_BlendMidHigh"))
-                treeInstance.prototypeIndex = 0;
-            else if(normalizedPosition.y + blendLowMidErrorRange < terrain.materialTemplate.GetFloat("_BlendLowMid"))
-                treeInstance.prototypeIndex = 1;
+            {
+                //가장 높은 곳
+                if (water > 0)
+                {
+                    if (water < 0.5f)
+                    {
+                        //파란꽃
+                        treeInstance.prototypeIndex = 1;
+                    }
+                    else
+                    {
+                        //빨간꽃
+                        treeInstance.prototypeIndex = 0;
+                    }
+                }
+                else
+                {
+                    //돌
+                    treeInstance.prototypeIndex = Random.Range(7, 12);
+                }
+            }
+            else if (normalizedPosition.y + blendLowMidErrorRange < terrain.materialTemplate.GetFloat("_BlendLowMid"))
+            {
+                //가장 낮은 곳
+                //돌~버섯
+                treeInstance.prototypeIndex = Random.Range(7,14);
+            }
             else
-                treeInstance.prototypeIndex = 2;
+            {
+                //중간 높은 곳
+                if (water > 0)
+                {
+                    if (waterTexture.GetPixel((int)position.x, (int)position.z).b < 0.3f)
+                    {
+                        //나무
+                        treeInstance.prototypeIndex = Random.Range(2, 7);
+                    }
+                    else
+                    {
+                        //나무~돌
+                        treeInstance.prototypeIndex = Random.Range(2, 12);
+                    }
+                }
+                else
+                {
+                    //돌
+                    treeInstance.prototypeIndex = Random.Range(7, 12);
+                }
+            }
 
             //추가
             terrain.AddTreeInstance(treeInstance);

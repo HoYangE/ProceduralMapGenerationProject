@@ -203,7 +203,7 @@ internal abstract class MapDrawer
         //인접 셀 색칠하기
         if (nearCell)
             pixelColors = CellNearInside(voronoi.Sites[target], pixelColors, rect, width, height,
-                new Color(0, 0, 0.75f));
+                new Color(1, 0, 0.8f));
 
         return pixelColors;
     }
@@ -297,8 +297,6 @@ internal abstract class MapDrawer
         while (true)
         {
             riverSprite = GradientRiver(before, riverSprite, size, 10+loopCount*2);
-            //riverSprite[before.y * size.y + before.x] = new Color(0, 0, 0f);
-            //pixelColors[before.y * size.y + before.x] = new Color(1,0,0.9f);
 
             if (before == after)
             {
