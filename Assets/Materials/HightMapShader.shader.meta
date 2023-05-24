@@ -3,10 +3,12 @@ guid: 0eb01a430ddb1684d8b6abc411270a82
 ShaderImporter:
   externalObjects: {}
   defaultTextures:
+  - _MainTex: {instanceID: 0}
   - _LowTex: {instanceID: 0}
   - _MidTex: {instanceID: 0}
   - _HighTex: {instanceID: 0}
   - _HeightMap: {instanceID: 0}
+  - _RiverMap: {instanceID: 0}
   nonModifiableTextures: []
   userData: 
   assetBundleName: 

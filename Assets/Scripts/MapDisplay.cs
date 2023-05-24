@@ -33,26 +33,50 @@ public class MapDisplay : MonoBehaviour
             for (int y = 0; y < height; y++)
             {
                 //모든 픽셀에 대해 연산 진행
-                colorMap[x * height + y] = CalcColor(noiseMap[x, y], gradientMap[x, y]);
+                colorMap[y * height + x] = CalcColor(noiseMap[x, y], gradientMap[x, y]);
             }
         }
 
         WaterLayer(voronoiDiagram, colorMap, width, height);
 
+        var riverTexture2D = riverSpriteRenderer.sprite.texture;
+
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                //모든 픽셀에 대해 연산 진행
+                colorMap[y * height + x] = CalcColor(colorMap[y * height + x].r*antiGrayscale*0.85f, riverTexture2D.GetPixel(x,y).r*0.3f);
+            }
+        }
+
         //colorMap을 이용하여 텍스쳐 제작
         noiseTex.SetPixels(colorMap);
         noiseTex.Apply();
         
+        
+        // for (int y = 0; y < riverTexture2D.height; y++)
+        // {
+        //     for (int x = 0; x < riverTexture2D.width; x++)
+        //     {
+        //         Color pixelColor = riverTexture2D.GetPixel(x, y);
+        //         Color invertedColor = new Color(1 - pixelColor.r, 1 - pixelColor.g, 1 - pixelColor.b, pixelColor.a);
+        //         riverTexture2D.SetPixel(x, y, invertedColor);
+        //     }
+        // }
+        riverTexture2D.Apply();
+        
         //텍스쳐를 기반으로 스프라이트 생성
         spriteRenderer.sprite = Sprite.Create(noiseTex, new Rect(0, 0, width, height), new Vector2(0.5f, 0.5f));
         material.SetTexture("_HeightMap", noiseTex);
+        material.SetTexture("_RiverMap", riverTexture2D);
         StartCoroutine(TerrainCoroutine(width, height, noiseTex));
     }
 
     private Color CalcColor(float noiseValue, float gradientValue)
     {
         float value = noiseValue + gradientValue;
-        //노이즈 맵과 그라디언트 맵을 더한 값을 0~1사이의 값으로 변환
+        //노이즈 맵과 그라디언트 맵을 더한 값을 0 ~ antiGrayscale사이의 값으로 변환
         value = Mathf.InverseLerp(0, antiGrayscale, value);
         //변환된 값에 해당하는 색상을 그레이스케일로 저장
         Color color = Color.Lerp(Color.black, Color.white, value);
